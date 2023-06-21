@@ -18,7 +18,7 @@ exports.auth = async (req, res, next) => {
         res.status(401).json({ message: error.message })
     }
 }
-
+// we write out the save part in order to access the pre function we made that hashes the password for us
 exports.createUser = async (req, res) => {
     try {
         const user = new User(req.body)
@@ -45,5 +45,27 @@ exports.loginUser = async (req, res) => {
         }
     } catch (error) {
         res.status(400).json({ message: error.message})
+    }
+}
+
+exports.updateUser = async (req, res) => {
+    try {
+        // we are making an array of all keys (ex. email, name, & password), and changing it based on the corresponding key in req.body
+        const updates = Object.keys.apply(req.body)
+        updates.forEach(update => req.user[update] = req.body[update])
+        await req.user.save()
+        // then we send the updated user back to the database
+        res.json(user)
+    } catch (error) {
+        res.status(400).json({ message: error.message })
+    }
+}
+
+exports.deleteUser = async (req, res) => {
+    try {
+        await req.user.deleteOne()
+        res.sendStatus(204)
+    } catch (error) {
+        res.status(400).json({ message: error.message })
     }
 }
